@@ -1,0 +1,182 @@
+@model SV22T1020013.Shop.Models.ProductSearchViewModel
+@{
+    ViewData["Title"] = "Sản phẩm";
+}
+
+<div class="page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item active">Sản phẩm</li>
+            </ol>
+        </nav>
+        <h1>Danh sách sản phẩm</h1>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <form id="filterForm" asp-controller="Product" asp-action="Index" method="get">
+                <div class="filter-card mb-3">
+                    <div class="filter-title"><i class="fas fa-search me-2"></i>Tìm kiếm</div>
+                    <div class="input-group">
+                        <input type="text" name="keyword" class="form-control form-control-sm"
+                               placeholder="Tên sản phẩm..." value="@Model.Keyword" />
+                        <button class="btn btn-sm btn-danger" type="submit"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+
+                <div class="filter-card mb-3">
+                    <div class="filter-title"><i class="fas fa-list me-2"></i>Danh mục</div>
+                    <label class="filter-label @(Model.CategoryID == null ? "active-filter" : "")">
+                        <input type="radio" name="categoryID" value="" @(Model.CategoryID == null ? "checked" : "") /> Tất cả danh mục
+                    </label>
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <label class="filter-label @(Model.CategoryID == cat.CategoryID ? "active-filter" : "")">
+                            <input type="radio" name="categoryID" value="@cat.CategoryID"
+                                   @(Model.CategoryID == cat.CategoryID ? "checked" : "") />
+                            @cat.CategoryName
+                        </label>
+                    }
+                </div>
+
+                <div class="filter-card mb-3">
+                    <div class="filter-title"><i class="fas fa-tag me-2"></i>Khoảng giá</div>
+                    <label class="filter-label @(Model.MinPrice == null && Model.MaxPrice == null ? "active-filter" : "")">
+                        <input type="radio" name="priceRange" value="all"
+                               @(Model.MinPrice == null && Model.MaxPrice == null ? "checked" : "")
+                               onchange="applyPrice(null,null)" /> Tất cả mức giá
+                    </label>
+                    <label class="filter-label @(Model.MaxPrice == 5000000 && Model.MinPrice == null ? "active-filter" : "")">
+                        <input type="radio" name="priceRange" value="u5"
+                               @(Model.MaxPrice == 5000000 && Model.MinPrice == null ? "checked" : "")
+                               onchange="applyPrice(0,5000000)" /> Dưới 5 triệu
+                    </label>
+                    <label class="filter-label @(Model.MinPrice == 5000000 && Model.MaxPrice == 10000000 ? "active-filter" : "")">
+                        <input type="radio" name="priceRange" value="5-10"
+                               @(Model.MinPrice == 5000000 && Model.MaxPrice == 10000000 ? "checked" : "")
+                               onchange="applyPrice(5000000,10000000)" /> 5 - 10 triệu
+                    </label>
+                    <label class="filter-label @(Model.MinPrice == 10000000 && Model.MaxPrice == 20000000 ? "active-filter" : "")">
+                        <input type="radio" name="priceRange" value="10-20"
+                               @(Model.MinPrice == 10000000 && Model.MaxPrice == 20000000 ? "checked" : "")
+                               onchange="applyPrice(10000000,20000000)" /> 10 - 20 triệu
+                    </label>
+                    <label class="filter-label @(Model.MinPrice == 20000000 && Model.MaxPrice == 35000000 ? "active-filter" : "")">
+                        <input type="radio" name="priceRange" value="20-35"
+                               @(Model.MinPrice == 20000000 && Model.MaxPrice == 35000000 ? "checked" : "")
+                               onchange="applyPrice(20000000,35000000)" /> 20 - 35 triệu
+                    </label>
+                    <label class="filter-label @(Model.MinPrice == 35000000 && Model.MaxPrice == null ? "active-filter" : "")">
+                        <input type="radio" name="priceRange" value="o35"
+                               @(Model.MinPrice == 35000000 && Model.MaxPrice == null ? "checked" : "")
+                               onchange="applyPrice(35000000,null)" /> Trên 35 triệu
+                    </label>
+                    <input type="hidden" name="minPrice" id="minPriceInput" value="@Model.MinPrice" />
+                    <input type="hidden" name="maxPrice" id="maxPriceInput" value="@Model.MaxPrice" />
+                </div>
+
+                <button type="submit" class="btn btn-danger w-100 btn-sm">
+                    <i class="fas fa-filter me-1"></i>Áp dụng lọc
+                </button>
+                <a href="/Product" class="btn btn-outline-secondary w-100 btn-sm mt-2">
+                    <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                </a>
+            </form>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <span class="text-muted small">
+                    Tìm thấy <strong>@Model.TotalCount</strong> sản phẩm
+                    @if (!string.IsNullOrEmpty(Model.Keyword)) { <span> cho "@Model.Keyword"</span> }
+                </span>
+            </div>
+
+            @if (!Model.Products.Any())
+            {
+                <div class="empty-state">
+                    <i class="fas fa-search-minus d-block"></i>
+                    <h5>Không tìm thấy sản phẩm</h5>
+                    <p class="text-muted small">Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc.</p>
+                    <a href="/Product" class="btn btn-outline-danger btn-sm mt-2">Xóa bộ lọc</a>
+                </div>
+            }
+            else
+            {
+                <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 g-3">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col">
+                            <div class="product-card">
+                                <div class="product-img-wrap">
+                                    <a href="/Product/Detail/@product.ProductID">
+                                        @if (!string.IsNullOrEmpty(product.Photo))
+                                        {
+                                            <img src="/images/products/@product.Photo" alt="@product.ProductName" loading="lazy" />
+                                        }
+                                        else
+                                        {
+                                            <img src="https://via.placeholder.com/300x300/f8f9fa/aaa?text=No+Image" alt="@product.ProductName" loading="lazy" />
+                                        }
+                                    </a>
+                                </div>
+                                <div class="product-body">
+                                    <div class="product-category">@product.CategoryName</div>
+                                    <a href="/Product/Detail/@product.ProductID" class="product-name">@product.ProductName</a>
+                                    <div class="product-price">@product.Price.ToString("N0") ₫</div>
+                                    <button class="btn-add-cart" data-product-id="@product.ProductID">
+                                        <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="mt-4 d-flex justify-content-center">
+                        <ul class="pagination">
+                            @if (Model.Page > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="?keyword=@Model.Keyword&categoryID=@Model.CategoryID&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&page=@(Model.Page-1)">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                            }
+                            @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
+                            {
+                                <li class="page-item @(i == Model.Page ? "active" : "")">
+                                    <a class="page-link" href="?keyword=@Model.Keyword&categoryID=@Model.CategoryID&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&page=@i">@i</a>
+                                </li>
+                            }
+                            @if (Model.Page < Model.TotalPages)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="?keyword=@Model.Keyword&categoryID=@Model.CategoryID&minPrice=@Model.MinPrice&maxPrice=@Model.MaxPrice&page=@(Model.Page+1)">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function applyPrice(min, max) {
+    document.getElementById('minPriceInput').value = min || '';
+    document.getElementById('maxPriceInput').value = max || '';
+    document.getElementById('filterForm').submit();
+}
+</script>
+}

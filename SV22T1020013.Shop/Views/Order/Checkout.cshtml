@@ -1,0 +1,145 @@
+@model SV22T1020013.Shop.Models.CheckoutViewModel
+@{
+    ViewData["Title"] = "Đặt hàng";
+}
+
+<div class="page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/Cart">Giỏ hàng</a></li>
+                <li class="breadcrumb-item active">Đặt hàng</li>
+            </ol>
+        </nav>
+        <h1>Thanh toán</h1>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="d-flex justify-content-center mb-4">
+        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
+            <div class="d-flex align-items-center gap-2">
+                <div style="width:32px;height:32px;border-radius:50%;background:#dee2e6;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#aaa;">1</div>
+                <span class="small text-muted">Giỏ hàng</span>
+            </div>
+            <div style="width:40px;height:2px;background:#dee2e6;"></div>
+            <div class="d-flex align-items-center gap-2">
+                <div style="width:32px;height:32px;border-radius:50%;background:#e63946;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;">2</div>
+                <span class="small fw-700 text-danger">Thanh toán</span>
+            </div>
+            <div style="width:40px;height:2px;background:#dee2e6;"></div>
+            <div class="d-flex align-items-center gap-2">
+                <div style="width:32px;height:32px;border-radius:50%;background:#dee2e6;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#aaa;">3</div>
+                <span class="small text-muted">Hoàn tất</span>
+            </div>
+        </div>
+    </div>
+
+    <form asp-controller="Order" asp-action="PlaceOrder" method="post">
+        @Html.AntiForgeryToken()
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="checkout-section">
+                    <h5><i class="fas fa-map-marker-alt me-2 text-danger"></i>Thông tin giao hàng</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Người nhận <span class="text-danger">*</span></label>
+                        <input type="text" name="ContactName" class="form-control" value="@Model.ContactName"
+                               placeholder="Tên người nhận hàng" required />
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("ContactName"))
+                        {
+                            <div class="invalid-feedback d-block">@ViewData.ModelState["ContactName"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                        <input type="tel" name="Phone" class="form-control" value="@Model.Phone"
+                               placeholder="Nhập số điện thoại" required />
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("Phone"))
+                        {
+                            <div class="invalid-feedback d-block">@ViewData.ModelState["Phone"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tỉnh/Thành phố</label>
+                        <input type="text" name="DeliveryProvince" class="form-control" value="@Model.DeliveryProvince"
+                               placeholder="Hà Nội, TP.HCM..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ giao hàng <span class="text-danger">*</span></label>
+                        <textarea name="DeliveryAddress" class="form-control" rows="3"
+                                  placeholder="Số nhà, đường, phường/xã, quận/huyện" required>@Model.DeliveryAddress</textarea>
+                        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey("DeliveryAddress"))
+                        {
+                            <div class="invalid-feedback d-block">@ViewData.ModelState["DeliveryAddress"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                        }
+                    </div>
+                </div>
+
+                <div class="checkout-section">
+                    <h5><i class="fas fa-credit-card me-2 text-danger"></i>Phương thức thanh toán</h5>
+                    <label style="border:2px solid #e63946;border-radius:10px;padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;background:#fff5f5;">
+                        <input type="radio" name="paymentMethod" value="cod" checked class="me-1" />
+                        <i class="fas fa-money-bill-wave text-success fa-lg"></i>
+                        <div>
+                            <div class="fw-700" style="font-size:.9rem;">Thanh toán khi nhận hàng (COD)</div>
+                            <div class="text-muted" style="font-size:.78rem;">Kiểm tra hàng trước khi thanh toán</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="checkout-section">
+                    <h5><i class="fas fa-shopping-cart me-2 text-danger"></i>Đơn hàng của bạn</h5>
+
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <div class="d-flex gap-3 mb-3 pb-3" style="border-bottom:1px solid #f0f0f0;">
+                            @if (!string.IsNullOrEmpty(item.Photo))
+                            {
+                                <img src="/images/products/@item.Photo" alt="@item.ProductName"
+                                     style="width:60px;height:60px;object-fit:contain;border-radius:8px;background:#f8f9fa;padding:4px;flex-shrink:0;" />
+                            }
+                            else
+                            {
+                                <div style="width:60px;height:60px;background:#f8f9fa;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="fas fa-box text-muted"></i>
+                                </div>
+                            }
+                            <div class="flex-grow-1">
+                                <div class="fw-600" style="font-size:.85rem;line-height:1.4;">@item.ProductName</div>
+                                <div class="text-muted" style="font-size:.78rem;">@item.Unit × @item.Quantity</div>
+                            </div>
+                            <div class="fw-700 text-danger" style="font-size:.88rem;white-space:nowrap;">@item.Subtotal.ToString("N0") ₫</div>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between py-2" style="border-top:1px solid #f0f0f0;">
+                        <span class="text-muted">Tạm tính</span>
+                        <span class="fw-600">@Model.Total.ToString("N0") ₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2">
+                        <span class="text-muted">Phí vận chuyển</span>
+                        <span class="fw-600 text-success">Miễn phí</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-2 mt-2" style="border-top:2px solid #f0f0f0;">
+                        <span class="fw-700 fs-5">Tổng cộng</span>
+                        <span class="fw-800 text-danger fs-5" style="font-family:'Nunito',sans-serif;">@Model.Total.ToString("N0") ₫</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100 py-3 mt-3 fw-700" style="border-radius:12px;font-size:1rem;">
+                        <i class="fas fa-check-circle me-2"></i>Xác nhận đặt hàng
+                    </button>
+                    <a href="/Cart" class="btn btn-outline-secondary w-100 mt-2 btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>Quay lại giỏ hàng
+                    </a>
+                </div>
+
+                <div class="text-center mt-3">
+                    <small class="text-muted"><i class="fas fa-lock me-1 text-success"></i>Thông tin của bạn được bảo mật an toàn</small>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

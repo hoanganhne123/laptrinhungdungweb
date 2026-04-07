@@ -1,0 +1,118 @@
+@model SV22T1020013.Models.Catalog.ProductPhoto
+@{
+    ViewBag.Title = ViewBag.Title ?? "Thêm ảnh mặt hàng";
+}
+
+@section PageToolBar {
+    <button type="submit" form="formPhoto" class="btn btn-primary">
+        <i class="bi bi-save me-1"></i> Lưu ảnh
+    </button>
+    <a href="~/Product/Edit/@Model.ProductID" class="btn btn-secondary ms-1">
+        <i class="bi bi-arrow-left me-1"></i> Quay lại
+    </a>
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card card-info card-outline">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-image me-2 text-info"></i>
+                    @ViewBag.Title
+                    @if (!string.IsNullOrEmpty(ViewBag.ProductName?.ToString()))
+                    {
+                        <small class="text-muted fs-6 ms-2">— @ViewBag.ProductName</small>
+                    }
+                </h5>
+            </div>
+
+            <div class="card-body">
+                <form id="formPhoto" action="~/Product/SavePhoto" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="PhotoID" />
+                    <input type="hidden" asp-for="ProductID" />
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-bold">
+                            Mô tả <span class="text-danger">*</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input type="text" asp-for="Description" class="form-control"
+                                   placeholder="Nhập mô tả cho ảnh..." autofocus />
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-bold">Thứ tự hiển thị</label>
+                        <div class="col-sm-4">
+                            <input type="number" asp-for="DisplayOrder" class="form-control" min="1" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-bold">Trạng thái</label>
+                        <div class="col-sm-9 d-flex align-items-center">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="IsHidden" id="isHidden" />
+                                <label class="form-check-label" for="isHidden">Ẩn ảnh này</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-bold">Chọn ảnh</label>
+                        <div class="col-sm-9">
+                            <input type="file" name="uploadPhoto" id="filePicker"
+                                   class="form-control" accept="image/*"
+                                   onchange="previewPhoto()" />
+                            <div class="form-text">Định dạng: JPG, PNG, GIF, WEBP. Tối đa 5MB.</div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label class="col-sm-3 col-form-label fw-bold">Xem trước</label>
+                        <div class="col-sm-9">
+                            @{
+                                string previewSrc = string.IsNullOrEmpty(Model.Photo)
+                                    ? Url.Content("~/images/products/nophoto.png")
+                                    : Model.Photo;
+                            }
+                            <img id="imgPreview"
+                                 src="@previewSrc"
+                                 class="img-thumbnail shadow-sm"
+                                 style="max-height: 250px; max-width: 100%; object-fit: contain;"
+                                 onerror="this.src='/images/products/nophoto.png'" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-9 offset-sm-3">
+                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function previewPhoto() {
+        var file = document.getElementById('filePicker').files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File ảnh không được vượt quá 5MB!');
+            document.getElementById('filePicker').value = '';
+            return;
+        }
+        var reader = new FileReader();
+        reader.onloadend = function () {
+            document.getElementById('imgPreview').src = reader.result;
+        };
+        reader.readAsDataURL(file);
+    }
+</script>
+}

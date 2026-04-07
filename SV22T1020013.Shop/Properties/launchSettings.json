@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "SV22T1020013.Shop": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:65369;http://localhost:65370"
+    }
+  }
+}

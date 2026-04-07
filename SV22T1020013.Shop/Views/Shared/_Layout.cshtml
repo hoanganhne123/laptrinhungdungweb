@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ShopVN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/shop.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <span><i class="fas fa-phone-alt me-1"></i> 1800 1234 &nbsp;|&nbsp; <i class="fas fa-envelope me-1"></i> support@shopvn.vn</span>
+            <span>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="me-2"><i class="fas fa-user-circle me-1"></i> @User.Identity.Name</span>
+                    <a href="/Account/Profile" class="topbar-link me-2">Tài khoản</a>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                        <button type="submit" class="topbar-link btn btn-link p-0">Đăng xuất</button>
+                    </form>
+                }
+                else
+                {
+                    <a href="/Account/Login" class="topbar-link me-2">Đăng nhập</a>
+                    <a href="/Account/Register" class="topbar-link">Đăng ký</a>
+                }
+            </span>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg main-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-store me-2"></i>ShopVN
+            </a>
+
+            <!-- Search Bar -->
+            <div class="nav-search flex-grow-1 mx-4 d-none d-lg-block">
+                <form asp-controller="Product" asp-action="Index" method="get">
+                    <div class="input-group">
+                        <input type="text" name="keyword" class="form-control search-input"
+                               placeholder="Tìm kiếm sản phẩm..." value="@ViewBag.Keyword" />
+                        <button class="btn btn-search" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a href="/Account/Profile" class="nav-icon" title="Tài khoản">
+                        <i class="fas fa-user-circle fa-lg"></i>
+                    </a>
+                    <a href="/Order/History" class="nav-icon" title="Đơn hàng">
+                        <i class="fas fa-box fa-lg"></i>
+                    </a>
+                }
+                <a href="/Cart" class="nav-icon cart-icon" title="Giỏ hàng">
+                    <i class="fas fa-shopping-cart fa-lg"></i>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Product">Sản phẩm</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Danh mục</a>
+                        <ul class="dropdown-menu cat-dropdown">
+                            @if (ViewBag.NavCategories != null)
+                            {
+                                foreach (var cat in (IEnumerable<SV22T1020013.Shop.Models.Category>)ViewBag.NavCategories)
+                                {
+                                    <li><a class="dropdown-item" href="/Product?categoryID=@cat.CategoryID">@cat.CategoryName</a></li>
+                                }
+                            }
+                        </ul>
+                    </li>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item"><a class="nav-link" href="/Order/History">Đơn hàng</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        @if (TempData["Success"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="container mt-3">
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            </div>
+        }
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer mt-5">
+        <div class="container">
+            <div class="row gy-4">
+                <div class="col-lg-4">
+                    <h5 class="footer-brand"><i class="fas fa-store me-2"></i>ShopVN</h5>
+                    <p class="text-muted small">Cửa hàng điện tử uy tín hàng đầu Việt Nam. Cam kết chính hãng, giá tốt, giao hàng nhanh.</p>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h6 class="footer-title">Danh mục</h6>
+                    <ul class="list-unstyled footer-links small">
+                        <li><a href="/Product">Tất cả sản phẩm</a></li>
+                        <li><a href="/Product?categoryID=1">Điện thoại</a></li>
+                        <li><a href="/Product?categoryID=2">Laptop</a></li>
+                        <li><a href="/Product?categoryID=4">Phụ kiện</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h6 class="footer-title">Hỗ trợ</h6>
+                    <ul class="list-unstyled footer-links small">
+                        <li><a href="#">Chính sách đổi trả</a></li>
+                        <li><a href="#">Chính sách bảo hành</a></li>
+                        <li><a href="#">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="footer-title">Liên hệ</h6>
+                    <p class="text-muted small mb-1"><i class="fas fa-map-marker-alt me-2 text-primary"></i>123 Đường ABC, Quận 1, TP.HCM</p>
+                    <p class="text-muted small mb-1"><i class="fas fa-phone me-2 text-primary"></i>1800 1234 (Miễn phí)</p>
+                    <p class="text-muted small"><i class="fas fa-envelope me-2 text-primary"></i>support@shopvn.vn</p>
+                </div>
+            </div>
+            <hr class="mt-4" />
+            <p class="text-center text-muted small mb-0">© 2024 ShopVN - Mã SV: SV22T1020013. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/shop.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,102 @@
+@model SV22T1020013.Shop.Models.Customer
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<div class="page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item active">Tài khoản</li>
+            </ol>
+        </nav>
+        <h1>Quản lý tài khoản</h1>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <div class="filter-card">
+                <div class="text-center mb-3">
+                    <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#e63946,#1d3557);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:2rem;color:#fff;font-weight:800;">
+                        @Model.CustomerName.Substring(0,1).ToUpper()
+                    </div>
+                    <div class="fw-700">@Model.CustomerName</div>
+                    <div class="text-muted small">@Model.Email</div>
+                </div>
+                <hr />
+                <div class="d-flex flex-column gap-1">
+                    <a href="/Account/Profile" class="filter-label active-filter text-decoration-none">
+                        <i class="fas fa-user me-2"></i>Thông tin cá nhân
+                    </a>
+                    <a href="/Account/ChangePassword" class="filter-label text-decoration-none text-dark">
+                        <i class="fas fa-key me-2 text-muted"></i>Đổi mật khẩu
+                    </a>
+                    <a href="/Order/History" class="filter-label text-decoration-none text-dark">
+                        <i class="fas fa-box me-2 text-muted"></i>Lịch sử đơn hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="checkout-section">
+                <h5><i class="fas fa-user-edit me-2 text-danger"></i>Thông tin cá nhân</h5>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success py-2 mb-3">
+                        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                    </div>
+                }
+
+                <form asp-controller="Account" asp-action="Profile" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tên khách hàng <span class="text-danger">*</span></label>
+                            <input type="text" name="CustomerName" class="form-control" value="@Model.CustomerName" required />
+                            @if (ViewData.ModelState.ContainsKey("CustomerName"))
+                            {
+                                <div class="text-danger small mt-1">@ViewData.ModelState["CustomerName"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tên giao dịch <span class="text-danger">*</span></label>
+                            <input type="text" name="ContactName" class="form-control" value="@Model.ContactName" required />
+                            @if (ViewData.ModelState.ContainsKey("ContactName"))
+                            {
+                                <div class="text-danger small mt-1">@ViewData.ModelState["ContactName"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control bg-light" value="@Model.Email" readonly disabled />
+                            <div class="text-muted small mt-1"><i class="fas fa-info-circle me-1"></i>Không thể thay đổi email</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel" name="Phone" class="form-control" value="@Model.Phone" placeholder="0901234567" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tỉnh/Thành phố</label>
+                            <input type="text" name="Province" class="form-control" value="@Model.Province" placeholder="Hà Nội, TP.HCM..." />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Địa chỉ</label>
+                            <textarea name="Address" class="form-control" rows="3" placeholder="Số nhà, đường, phường, quận, tỉnh/thành phố">@Model.Address</textarea>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="fas fa-save me-2"></i>Lưu thay đổi
+                        </button>
+                        <a href="/" class="btn btn-outline-secondary px-4">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

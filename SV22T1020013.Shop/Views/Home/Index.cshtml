@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Trang chủ";
+    var featuredProducts = ViewBag.FeaturedProducts as IEnumerable<SV22T1020013.Shop.Models.Product> ?? new List<SV22T1020013.Shop.Models.Product>();
+    var categories = ViewBag.Categories as IEnumerable<SV22T1020013.Shop.Models.Category> ?? new List<SV22T1020013.Shop.Models.Category>();
+}
+
+<div class="hero-banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-badge mb-3" style="display:inline-block;background:rgba(255,255,255,.15);color:#fff;padding:5px 16px;border-radius:20px;font-size:.8rem;font-weight:600;">
+                    🎉 Siêu sale cuối năm - Giảm đến 50%
+                </div>
+                <h1 class="hero-title">Công nghệ đỉnh cao,<br>giá <span style="color:#f4a261">tốt nhất</span> thị trường</h1>
+                <p class="hero-subtitle mt-3">Hàng chính hãng, bảo hành chính thức. Giao hàng nhanh toàn quốc trong 24h.</p>
+                <div class="d-flex gap-3 mt-4 flex-wrap">
+                    <a href="/Product" class="btn-hero">
+                        <i class="fas fa-shopping-bag me-2"></i>Mua ngay
+                    </a>
+                    <a href="/Product" class="btn-hero" style="background:transparent;border:2px solid rgba(255,255,255,.5);">
+                        <i class="fas fa-tag me-2"></i>Xem khuyến mãi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="background:#fff;border-bottom:1px solid #f0f0f0;padding:14px 0;">
+    <div class="container">
+        <div class="row text-center gy-2">
+            <div class="col-6 col-md-3">
+                <span style="font-size:.82rem;font-weight:600;color:#555;"><i class="fas fa-shipping-fast text-primary me-1"></i> Miễn phí ship đơn >500K</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <span style="font-size:.82rem;font-weight:600;color:#555;"><i class="fas fa-undo text-primary me-1"></i> Đổi trả 15 ngày</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <span style="font-size:.82rem;font-weight:600;color:#555;"><i class="fas fa-shield-alt text-primary me-1"></i> Bảo hành chính hãng</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <span style="font-size:.82rem;font-weight:600;color:#555;"><i class="fas fa-headset text-primary me-1"></i> Hỗ trợ 24/7</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    @if (categories.Any())
+    {
+        <h2 class="section-title">Danh mục sản phẩm</h2>
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-3 mb-5">
+            @{
+                var catIcons = new Dictionary<string, string> {
+                    {"Điện thoại","fa-mobile-alt"},
+                    {"Laptop","fa-laptop"},
+                    {"Máy tính bảng","fa-tablet-alt"},
+                    {"Phụ kiện","fa-headphones"},
+                    {"Đồng hồ thông minh","fa-clock"}
+                };
+            }
+            @foreach (var cat in categories)
+            {
+                var icon = catIcons.ContainsKey(cat.CategoryName) ? catIcons[cat.CategoryName] : "fa-box";
+                <div class="col">
+                    <a href="/Product?categoryID=@cat.CategoryID" class="cat-card">
+                        <div class="cat-icon"><i class="fas @icon"></i></div>
+                        <div class="cat-name">@cat.CategoryName</div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+
+    @if (featuredProducts.Any())
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="section-title mb-0">Sản phẩm nổi bật</h2>
+            <a href="/Product" class="text-primary fw-600 text-decoration-none small">Xem tất cả <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            @foreach (var product in featuredProducts)
+            {
+                <div class="col">
+                    <div class="product-card">
+                        <div class="product-img-wrap">
+                            <a href="/Product/Detail/@product.ProductID">
+                                @if (!string.IsNullOrEmpty(product.Photo))
+                                {
+                                    <img src="/images/products/@product.Photo" alt="@product.ProductName" />
+                                }
+                                else
+                                {
+                                    <img src="https://via.placeholder.com/300x300/f8f9fa/aaa?text=@Uri.EscapeDataString(product.ProductName)" alt="@product.ProductName" />
+                                }
+                            </a>
+                            <span class="product-badge">HOT</span>
+                        </div>
+                        <div class="product-body">
+                            <div class="product-category">@product.CategoryName</div>
+                            <a href="/Product/Detail/@product.ProductID" class="product-name">@product.ProductName</a>
+                            <div class="product-price">@product.Price.ToString("N0") ₫</div>
+                            <button class="btn-add-cart" data-product-id="@product.ProductID">
+                                <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,102 @@
+@model SV22T1020013.Shop.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="auth-wrapper">
+    <div class="container">
+        <div class="auth-card">
+            <div class="text-center mb-4">
+                <a href="/" style="text-decoration:none;">
+                    <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:1.8rem;color:#e63946;">
+                        <i class="fas fa-store me-2"></i>ShopVN
+                    </div>
+                </a>
+            </div>
+            <h2 class="auth-title">Đăng nhập</h2>
+            <p class="auth-subtitle">Chào mừng bạn quay lại! Vui lòng đăng nhập để tiếp tục.</p>
+
+            @if (TempData["SuccessMsg"] != null)
+            {
+                <div class="alert alert-success py-2"><i class="fas fa-check-circle me-2"></i>@TempData["SuccessMsg"]</div>
+            }
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey(""))
+            {
+                <div class="alert alert-danger py-2">
+                    <i class="fas fa-exclamation-circle me-2"></i>@ViewData.ModelState[""]?.Errors.FirstOrDefault()?.ErrorMessage
+                </div>
+            }
+
+            <form asp-controller="Account" asp-action="Login" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-envelope text-muted"></i></span>
+                        <input type="email" name="Email" class="form-control border-start-0" value="@Model?.Email"
+                               placeholder="example@email.com" required autofocus />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label d-flex justify-content-between">
+                        Mật khẩu
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-lock text-muted"></i></span>
+                        <input type="password" name="Password" id="passwordInput" class="form-control border-start-0 border-end-0"
+                               placeholder="Nhập mật khẩu" required />
+                        <button type="button" class="input-group-text bg-light border-start-0"
+                                onclick="togglePassword()">
+                            <i class="fas fa-eye text-muted" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4 d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="RememberMe" value="true" id="rememberMe" />
+                        <label class="form-check-label small" for="rememberMe">Ghi nhớ đăng nhập</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth">
+                    <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                </button>
+            </form>
+
+            <hr class="my-4" />
+
+            <p class="text-center text-muted small mb-0">
+                Chưa có tài khoản?
+                <a href="/Account/Register" class="text-danger fw-700 text-decoration-none">Đăng ký ngay</a>
+            </p>
+
+            <div class="text-center mt-3 p-3 bg-light rounded" style="border:1px dashed #dee2e6;">
+                <div class="text-muted small mb-1"><i class="fas fa-info-circle me-1"></i>Tài khoản demo</div>
+                <div class="small"><strong>Email:</strong> customer@example.com</div>
+                <div class="small"><strong>Mật khẩu:</strong> 123456</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('passwordInput');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash text-muted';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye text-muted';
+            }
+        }
+    </script>
+}

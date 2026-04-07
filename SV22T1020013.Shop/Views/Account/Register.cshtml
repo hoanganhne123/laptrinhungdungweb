@@ -1,0 +1,105 @@
+@model SV22T1020013.Shop.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký tài khoản";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="checkout-section">
+                <div class="text-center mb-4">
+                    <h3 style="font-family:'Nunito',sans-serif;font-weight:800;color:#1d3557;">Đăng ký tài khoản</h3>
+                    <p class="text-muted small">Tạo tài khoản để mua sắm dễ dàng hơn</p>
+                </div>
+
+                @if (TempData["SuccessMsg"] != null)
+                {
+                    <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>@TempData["SuccessMsg"]</div>
+                }
+
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tên khách hàng / Công ty <span class="text-danger">*</span></label>
+                            <input type="text" name="CustomerName" class="form-control" value="@Model?.CustomerName" placeholder="Nguyễn Văn A / Công ty ABC" required />
+                            @if (ViewData.ModelState.ContainsKey("CustomerName"))
+                            {
+                                <div class="text-danger small mt-1">@ViewData.ModelState["CustomerName"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tên giao dịch <span class="text-danger">*</span></label>
+                            <input type="text" name="ContactName" class="form-control" value="@Model?.ContactName" placeholder="Người liên hệ" required />
+                            @if (ViewData.ModelState.ContainsKey("ContactName"))
+                            {
+                                <div class="text-danger small mt-1">@ViewData.ModelState["ContactName"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                            }
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" name="Email" class="form-control" value="@Model?.Email" placeholder="email@example.com" required />
+                            @if (ViewData.ModelState.ContainsKey("Email"))
+                            {
+                                <div class="text-danger small mt-1">@ViewData.ModelState["Email"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" name="Password" class="form-control" placeholder="Ít nhất 6 ký tự" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Xác nhận mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" name="ConfirmPassword" class="form-control" placeholder="Nhập lại mật khẩu" required />
+                            @if (ViewData.ModelState.ContainsKey("ConfirmPassword"))
+                            {
+                                <div class="text-danger small mt-1">@ViewData.ModelState["ConfirmPassword"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="tel" name="Phone" class="form-control" value="@Model?.Phone" placeholder="0901234567" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Tỉnh/Thành phố</label>
+                            <select name="Province" class="form-select">
+                                <option value="">-- Chọn tỉnh/thành phố --</option>
+                                @if (ViewBag.Provinces != null)
+                                {
+                                    foreach (var p in (List<string>)ViewBag.Provinces)
+                                    {
+                                        if (Model?.Province == p)
+                                        {
+                                            <option value="@p" selected>@p</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@p">@p</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                            @if (ViewData.ModelState.ContainsKey("Province"))
+                            {
+                                <div class="text-danger small mt-1">@ViewData.ModelState["Province"]?.Errors.FirstOrDefault()?.ErrorMessage</div>
+                            }
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Địa chỉ</label>
+                            <textarea name="Address" class="form-control" rows="2" placeholder="Số nhà, đường, phường...">@Model?.Address</textarea>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100 mt-4 py-3 fw-700" style="border-radius:12px;">
+                        <i class="fas fa-user-plus me-2"></i>Đăng ký
+                    </button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <span class="text-muted small">Đã có tài khoản? </span>
+                    <a href="/Account/Login" class="text-danger fw-700">Đăng nhập ngay</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

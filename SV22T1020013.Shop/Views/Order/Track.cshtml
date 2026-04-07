@@ -1,0 +1,153 @@
+@model SV22T1020013.Shop.Models.OrderViewInfo
+@{
+    ViewData["Title"] = $"Theo dõi đơn hàng #{Model.OrderID}";
+    var steps = new List<(SV22T1020013.Shop.Models.OrderStatusEnum status, string title, string desc, string icon)>
+    {
+        (SV22T1020013.Shop.Models.OrderStatusEnum.New,       "Đặt hàng thành công",  "Đơn hàng đã được tiếp nhận.",                  "fa-check"),
+        (SV22T1020013.Shop.Models.OrderStatusEnum.Accepted,  "Đã xác nhận",          "Đơn hàng đã được xác nhận và đang chuẩn bị.",  "fa-box"),
+        (SV22T1020013.Shop.Models.OrderStatusEnum.Shipping,  "Đang giao hàng",       "Đơn hàng đang trên đường đến bạn.",            "fa-truck"),
+        (SV22T1020013.Shop.Models.OrderStatusEnum.Completed, "Giao hàng thành công", "Đơn hàng đã được giao thành công.",            "fa-home"),
+    };
+    var currentIndex = steps.FindIndex(s => s.status == Model.Status);
+    bool isCancelled = Model.Status == SV22T1020013.Shop.Models.OrderStatusEnum.Cancelled
+                    || Model.Status == SV22T1020013.Shop.Models.OrderStatusEnum.Rejected;
+}
+
+<div class="page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/Order/History">Đơn hàng</a></li>
+                <li class="breadcrumb-item active">Theo dõi #@Model.OrderID</li>
+            </ol>
+        </nav>
+        <h1>Theo dõi đơn hàng #@Model.OrderID</h1>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="checkout-section">
+                <h5><i class="fas fa-route me-2 text-danger"></i>Trạng thái đơn hàng</h5>
+
+                @if (isCancelled)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-times-circle me-2"></i>
+                        <strong>Đơn hàng đã @(Model.Status == SV22T1020013.Shop.Models.OrderStatusEnum.Cancelled ? "bị hủy" : "bị từ chối").</strong>
+                        Vui lòng liên hệ hỗ trợ nếu cần thêm thông tin.
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex align-items-center mb-4">
+                        @for (int i = 0; i < steps.Count; i++)
+                        {
+                            var (status, title, desc, icon) = steps[i];
+                            var isActive = i == currentIndex;
+                            var isDone = i < currentIndex;
+                            <div class="text-center" style="flex:1;">
+                                <div style="width:36px;height:36px;border-radius:50%;@(isDone ? "background:#198754;" : isActive ? "background:#e63946;" : "background:#dee2e6;")display:flex;align-items:center;justify-content:center;margin:0 auto 6px;color:@(isDone||isActive?"#fff":"#aaa");font-size:.85rem;">
+                                    <i class="fas @icon"></i>
+                                </div>
+                                <div class="d-none d-sm-block" style="font-size:.72rem;font-weight:@(isActive?"700":"400");color:@(isActive?"#e63946":isDone?"#198754":"#aaa");">@title</div>
+                            </div>
+                            @if (i < steps.Count - 1)
+                            {
+                                <div style="flex:1;height:2px;background:@(i < currentIndex?"#198754":"#dee2e6");margin-top:18px;"></div>
+                            }
+                        }
+                    </div>
+
+                    <div class="tracking-timeline">
+                        @for (int i = 0; i < steps.Count; i++)
+                        {
+                            var (status, title, desc, icon) = steps[i];
+                            var isActive = i == currentIndex;
+                            var isDone = i < currentIndex;
+                            var stepClass = isDone ? "done" : isActive ? "active" : "";
+                            <div class="tracking-step @stepClass">
+                                <div class="step-icon"><i class="fas @icon"></i></div>
+                                <div class="step-content">
+                                    <div class="step-title @(isActive ? "text-danger" : isDone ? "text-success" : "text-muted")">@title</div>
+                                    <div class="step-desc">
+                                        @if (isDone || isActive) { @desc }
+                                        else { <span>Chờ cập nhật...</span> }
+                                    </div>
+                                    @if ((isDone || isActive) && i == 0)
+                                    {
+                                        <div class="step-desc"><i class="fas fa-clock me-1"></i>@Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</div>
+                                    }
+                                    @if (isActive && Model.AcceptTime.HasValue && i == 1)
+                                    {
+                                        <div class="step-desc"><i class="fas fa-clock me-1"></i>@Model.AcceptTime.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                                    }
+                                    @if (isActive && Model.ShippedTime.HasValue && i == 2)
+                                    {
+                                        <div class="step-desc"><i class="fas fa-clock me-1"></i>@Model.ShippedTime.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                                    }
+                                    @if (isActive && Model.FinishedTime.HasValue && i == 3)
+                                    {
+                                        <div class="step-desc"><i class="fas fa-clock me-1"></i>@Model.FinishedTime.Value.ToString("dd/MM/yyyy HH:mm")</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="checkout-section mb-3">
+                <h5><i class="fas fa-info-circle me-2 text-danger"></i>Thông tin đơn hàng</h5>
+                <table class="table table-sm table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted small" style="width:40%">Mã đơn hàng</td>
+                        <td class="fw-700">#@Model.OrderID</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted small">Ngày đặt</td>
+                        <td>@Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                    @if (!string.IsNullOrEmpty(Model.DeliveryProvince))
+                    {
+                        <tr>
+                            <td class="text-muted small">Tỉnh/Thành</td>
+                            <td>@Model.DeliveryProvince</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.DeliveryAddress))
+                    {
+                        <tr>
+                            <td class="text-muted small">Địa chỉ giao</td>
+                            <td>@Model.DeliveryAddress</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ShipperName))
+                    {
+                        <tr>
+                            <td class="text-muted small">Người giao</td>
+                            <td>@Model.ShipperName @(!string.IsNullOrEmpty(Model.ShipperPhone) ? $"({Model.ShipperPhone})" : "")</td>
+                        </tr>
+                    }
+                    <tr>
+                        <td class="text-muted small">Tổng tiền</td>
+                        <td class="fw-800 text-danger" style="font-family:'Nunito',sans-serif;">@Model.Details.Sum(d => d.TotalPrice).ToString("N0") ₫</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+                <a href="/Order/Detail/@Model.OrderID" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-list me-2"></i>Xem chi tiết đơn hàng
+                </a>
+                <a href="/Order/History" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-2"></i>Tất cả đơn hàng
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

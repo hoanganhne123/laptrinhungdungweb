@@ -1,0 +1,148 @@
+@model SV22T1020013.Shop.Models.OrderViewInfo
+@{
+    ViewData["Title"] = $"Đơn hàng #{Model.OrderID}";
+    var statusText = Model.Status switch {
+        SV22T1020013.Shop.Models.OrderStatusEnum.New       => "Chờ xác nhận",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Accepted  => "Đã xác nhận",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Shipping  => "Đang giao hàng",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Completed => "Đã giao hàng",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Cancelled => "Đã hủy",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Rejected  => "Đã từ chối",
+        _ => Model.Status.ToString()
+    };
+    var statusClass = Model.Status switch {
+        SV22T1020013.Shop.Models.OrderStatusEnum.New       => "status-pending",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Accepted  => "status-confirmed",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Shipping  => "status-shipping",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Completed => "status-delivered",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Cancelled => "status-cancelled",
+        SV22T1020013.Shop.Models.OrderStatusEnum.Rejected  => "status-cancelled",
+        _ => "status-pending"
+    };
+}
+
+<div class="page-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/Order/History">Đơn hàng</a></li>
+                <li class="breadcrumb-item active">Đơn hàng #@Model.OrderID</li>
+            </ol>
+        </nav>
+        <h1>Chi tiết đơn hàng #@Model.OrderID</h1>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="checkout-section mb-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <span class="text-muted small"><i class="fas fa-calendar me-1"></i>Ngày đặt: @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <span class="status-badge @statusClass fs-6">@statusText</span>
+                </div>
+                <hr />
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="text-muted small fw-600 mb-1"><i class="fas fa-user me-1"></i>KHÁCH HÀNG</div>
+                        <div class="fw-600">@Model.CustomerName</div>
+                        @if (!string.IsNullOrEmpty(Model.CustomerContact))
+                        {
+                            <div class="text-muted small">Liên hệ: @Model.CustomerContact</div>
+                        }
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.DeliveryAddress))
+                    {
+                        <div class="col-md-6">
+                            <div class="text-muted small fw-600 mb-1"><i class="fas fa-map-marker-alt me-1"></i>ĐỊA CHỈ GIAO HÀNG</div>
+                            @if (!string.IsNullOrEmpty(Model.DeliveryProvince))
+                            {
+                                <div class="text-muted small">@Model.DeliveryProvince</div>
+                            }
+                            <div class="fw-600">@Model.DeliveryAddress</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ShipperName))
+                    {
+                        <div class="col-md-6">
+                            <div class="text-muted small fw-600 mb-1"><i class="fas fa-truck me-1"></i>NGƯỜI GIAO HÀNG</div>
+                            <div class="fw-600">@Model.ShipperName</div>
+                            @if (!string.IsNullOrEmpty(Model.ShipperPhone))
+                            {
+                                <div class="text-muted small">ĐT: @Model.ShipperPhone</div>
+                            }
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.EmployeeName))
+                    {
+                        <div class="col-md-6">
+                            <div class="text-muted small fw-600 mb-1"><i class="fas fa-user-tie me-1"></i>NHÂN VIÊN PHỤ TRÁCH</div>
+                            <div class="fw-600">@Model.EmployeeName</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="checkout-section">
+                <h5><i class="fas fa-boxes me-2 text-danger"></i>Sản phẩm đã đặt</h5>
+                @foreach (var detail in Model.Details)
+                {
+                    <div class="d-flex gap-3 mb-3 pb-3" style="border-bottom:1px solid #f0f0f0;">
+                        @if (!string.IsNullOrEmpty(detail.Photo))
+                        {
+                            <img src="/images/products/@detail.Photo" alt="@detail.ProductName"
+                                 style="width:60px;height:60px;object-fit:contain;border-radius:8px;background:#f8f9fa;padding:4px;flex-shrink:0;" />
+                        }
+                        else
+                        {
+                            <div style="width:60px;height:60px;background:#f8f9fa;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="fas fa-box text-muted"></i>
+                            </div>
+                        }
+                        <div class="flex-grow-1">
+                            <a href="/Product/Detail/@detail.ProductID" class="fw-600 text-dark text-decoration-none" style="font-size:.9rem;">
+                                @detail.ProductName
+                            </a>
+                            <div class="text-muted small">Đơn giá: @detail.SalePrice.ToString("N0") ₫ × @detail.Quantity @detail.Unit</div>
+                        </div>
+                        <div class="fw-700 text-danger">@detail.TotalPrice.ToString("N0") ₫</div>
+                    </div>
+                }
+
+                <div class="d-flex justify-content-between py-2 mt-2" style="border-top:2px solid #f0f0f0;">
+                    <span class="fw-700">Tổng cộng</span>
+                    <span class="fw-800 text-danger" style="font-family:'Nunito',sans-serif;font-size:1.2rem;">
+                        @Model.Details.Sum(d => d.TotalPrice).ToString("N0") ₫
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="checkout-section">
+                <h5><i class="fas fa-tools me-2 text-danger"></i>Thao tác</h5>
+                <div class="d-flex flex-column gap-2">
+                    <a href="/Order/Track/@Model.OrderID" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-truck me-2"></i>Theo dõi đơn hàng
+                    </a>
+                    <a href="/Order/History" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-list me-2"></i>Tất cả đơn hàng
+                    </a>
+                    <a href="/Product" class="btn btn-danger w-100">
+                        <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success mt-3">
+                    <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+                </div>
+            }
+        </div>
+    </div>
+</div>
